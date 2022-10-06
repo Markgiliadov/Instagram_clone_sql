@@ -13,7 +13,7 @@ const Comp = ({ linkName, isButton, buttonAction }) => {
             marginTop: "18%",
             marginLeft: "25%",
             margin: "1%",
-            width: "100%",
+            width: "30px",
             paddingLeft: "45px",
             paddingRight: "55px",
             backgroundColor: "ThreeDFace",

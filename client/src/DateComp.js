@@ -9,19 +9,14 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 
-export default function MaterialUIPickers() {
-  const [value, setValue] = React.useState(dayjs("2014-08-18T21:11:54"));
-
-  const handleChange = (newValue) => {
-    console.log(dayjs("2014-08-18T21:11:54"));
-    setValue(newValue);
-  };
+export default function MaterialUIPickers({label,value, handleChange}) {
+  
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Stack spacing={3}>
         <DesktopDatePicker
-          label="Date desktop"
+          label={label}
           inputFormat="MM/DD/YYYY"
           value={value}
           onChange={handleChange}
