@@ -1,23 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Switch, Route, Link, Routes } from "react-router-dom";
 import "./index.css";
 import BasicTable from "./Table";
 import FilteredTable from "./FilteredTable";
-import GatherTable from "./GatherTable";
+import JoinTable from "./JoinTable";
 import Comp from "./Comp";
+import MongoDB from "./MongoDB";
+import App from "./App";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
+  // const [isMongo, setIsMongo] = useState(false);
+
   <React.StrictMode>
-    <BrowserRouter>
-      <Comp linkName="filter" isButton={false} buttonAction={null} />
-      <Comp linkName="sort" isButton={false} buttonAction={null} />
-      <Comp linkName="gather" isButton={false} buttonAction={null} />
-      <Routes>
-        <Route path="/sort" element={<BasicTable />} />
-        <Route path="/filter" element={<FilteredTable />} />
-        <Route path="/gather" element={<GatherTable />} />
-      </Routes>
-    </BrowserRouter>
+    <App />
   </React.StrictMode>
 );

@@ -10,7 +10,6 @@ import Paper from "@mui/material/Paper";
 import { TableSortLabel } from "@mui/material";
 import { CircularProgress } from "@mui/material";
 
-
 export default function BasicTable() {
   const [sortActive, setSortActive] = useState({
     id: true,
@@ -35,6 +34,7 @@ export default function BasicTable() {
     })
       .then((res) => res.json())
       .then((d) => {
+        console.log(d);
         setData(d);
         handleLoading(() => setLoadingSpinner(false));
       });
@@ -52,82 +52,91 @@ export default function BasicTable() {
       : fetchData(e.currentTarget.id, "desc");
   };
   return (
-    <TableContainer
-      component={Paper}
+    <div
       style={{
-        marginLeft: "1%",
-        marginRight: "1%",
-        width: "98%",
-        backgroundColor: "rgba",
+        padding: "1%",
+        height: "100%",
+        width: "100%",
+        backgroundColor: "blue",
       }}
     >
-      <Table sx={{ minWidth: 550 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center">
-              <TableSortLabel
-                id="id"
-                active={true}
-                direction={sortActive.id ? "asc" : "desc"}
-                onClick={(e) => {
-                  setSortActive({
-                    ...sortActive,
-                    [e.currentTarget.id]: !sortActive[e.currentTarget.id],
-                  });
-                  handleClickSort(e);
-                }}
-              />
-              ID
-            </TableCell>
-            <TableCell align="center">
-              <TableSortLabel
-                id="username"
-                active={true}
-                direction={sortActive.username ? "asc" : "desc"}
-                onClick={(e) => {
-                  setSortActive({
-                    ...sortActive,
-                    [e.currentTarget.id]: !sortActive[e.currentTarget.id],
-                  });
-                  handleClickSort(e);
-                }}
-              />
-              Username
-            </TableCell>
-            <TableCell align="center">
-              <TableSortLabel
-                id="created_at"
-                active={true}
-                direction={sortActive.created_at ? "asc" : "desc"}
-                onClick={(e) => {
-                  setSortActive({
-                    ...sortActive,
-                    [e.currentTarget.id]: !sortActive[e.currentTarget.id],
-                  });
-                  handleClickSort(e);
-                }}
-              />
-              Created at
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {loadingSpinner ? (
-            <CircularProgress size={90} />
-          ) : (
-            data.map((row) => (
-              <TableRow
-                key={row.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell align="center">{row.id}</TableCell>
-                <TableCell align="center">{row.username}</TableCell>
-                <TableCell align="center">{row.created_at}</TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+      <TableContainer
+        component={Paper}
+        style={{
+          marginLeft: "1%",
+          marginRight: "1%",
+          width: "98%",
+          backgroundColor: "rgba",
+        }}
+      >
+        <Table sx={{ minWidth: 550 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">
+                <TableSortLabel
+                  id="id"
+                  active={true}
+                  direction={sortActive.id ? "asc" : "desc"}
+                  onClick={(e) => {
+                    setSortActive({
+                      ...sortActive,
+                      [e.currentTarget.id]: !sortActive[e.currentTarget.id],
+                    });
+                    handleClickSort(e);
+                  }}
+                />
+                ID
+              </TableCell>
+              <TableCell align="center">
+                <TableSortLabel
+                  id="username"
+                  active={true}
+                  direction={sortActive.username ? "asc" : "desc"}
+                  onClick={(e) => {
+                    setSortActive({
+                      ...sortActive,
+                      [e.currentTarget.id]: !sortActive[e.currentTarget.id],
+                    });
+                    handleClickSort(e);
+                  }}
+                />
+                Username
+              </TableCell>
+              <TableCell align="center">
+                <TableSortLabel
+                  id="created_at"
+                  active={true}
+                  direction={sortActive.created_at ? "asc" : "desc"}
+                  onClick={(e) => {
+                    setSortActive({
+                      ...sortActive,
+                      [e.currentTarget.id]: !sortActive[e.currentTarget.id],
+                    });
+                    handleClickSort(e);
+                  }}
+                />
+                Created at
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loadingSpinner ? (
+              <CircularProgress size={90} />
+            ) : (
+              data.map((row) => (
+                <TableRow
+                  key={row.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell align="center">{row.id}</TableCell>
+                  <TableCell align="center">{row.username}</TableCell>
+                  <TableCell align="center">{row.created_at}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 }
