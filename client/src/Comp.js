@@ -38,7 +38,7 @@ const Comp = ({
     fontSize: "15px",
     fontFamily: "fantasy",
     borderStyle: "double",
-    borderWidth: "2px",
+    borderWidth: "1px",
   };
   return (
     <>

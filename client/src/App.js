@@ -4,14 +4,14 @@ import "./index.css";
 import BasicTable from "./Table";
 import FilteredTable from "./FilteredTable";
 import JoinTable from "./JoinTable";
-import Compare from "./Compare";
+import Convert from "./Convert";
 import Import from "./Import";
 import Export from "./Export";
 
 import Comp from "./Comp";
 import MongoDB from "./MongoDB";
 const App = () => {
-  const [isMongo, setIsMongo] = useState(true);
+  const [isMongo, setIsMongo] = useState(false);
   return (
     <BrowserRouter>
       <div style={{ backgroundColor: "#303030" }}>
@@ -22,7 +22,7 @@ const App = () => {
               width: "270px",
               height: "70px",
             }}
-            route="compare"
+            route="convert"
             linkName="Switch to MongoDB"
             isButton={true}
             buttonAction={() => setIsMongo(false)}
@@ -66,10 +66,24 @@ const App = () => {
               visibility={isMongo}
             />
           </div>
+          {isMongo ? (
+            <div
+              style={{
+                border: "solid",
+                borderRadius: "2%",
+                borderWidth: "2px",
+                backgroundColor: "beige",
+                fontFamily: "monospace",
+                fontSize: "30px",
+              }}
+            >
+              MySQL
+            </div>
+          ) : null}
           <div style={{ backgroundColor: "red" }}>
             <Comp
-              route="compare"
-              linkName="compare"
+              route="convert"
+              linkName="convert"
               isButton={false}
               buttonAction={null}
               visibility={!isMongo}
@@ -88,6 +102,20 @@ const App = () => {
               buttonAction={null}
               visibility={!isMongo}
             />
+            {!isMongo ? (
+              <div
+                style={{
+                  border: "solid",
+                  borderRadius: "2%",
+                  borderWidth: "2px",
+                  backgroundColor: "purple",
+                  fontFamily: "monospace",
+                  fontSize: "30px",
+                }}
+              >
+                Mongo
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -107,7 +135,7 @@ const App = () => {
         <Route path="/sort" element={<BasicTable />} />
         <Route path="/filter" element={<FilteredTable />} />
         <Route path="/join" element={<JoinTable />} />
-        <Route path="/compare" element={<Compare />} />
+        <Route path="/convert" element={<Convert />} />
         <Route path="/import" element={<Import />} />
         <Route path="/export" element={<Export />} />
       </Routes>

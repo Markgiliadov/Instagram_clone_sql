@@ -82,6 +82,7 @@ const Export = () => {
       })
         .then((res) => res.json())
         .then((d) => {
+          console.log(d);
           setData1(d);
           handleLoading(
             () => setLoadingSpinner1(false),

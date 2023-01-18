@@ -167,9 +167,9 @@ const Import = () => {
     >
       <div
         style={{
-          borderWidth: "1.5px",
+          borderWidth: "0.5px",
           border: "solid",
-          borderRadius: "10px",
+          borderRadius: "5px",
           backgroundColor: "darkgray",
           display: "flex",
           padding: "10px",
