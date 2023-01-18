@@ -1,7 +1,6 @@
 let express = require("express");
 let mysql = require("mysql");
 const cors = require("cors");
-
 //csv parsing imports
 var fastcsv = require("fast-csv");
 const fs = require("fs");
@@ -14,8 +13,11 @@ const { MongoClient } = require("mongodb");
 const e = require("express");
 // Replace the uri string with your connection string.
 const uri = "mongodb://192.168.1.156:27017";
-const uriPocoF3 = "mongodb://192.168.29.100:27017";
-const client = new MongoClient(uriPocoF3);
+const uriPocoF3 = "mongodb://192.168.104.100:27017";
+const uriPocoF32 = "mongodb://192.168.85.100:27017";
+const uriBD = "mongodb://192.168.30.96:27017";
+const client = new MongoClient(uri);
+const database = client.db("my-db");
 //mongo end
 app.use(cors({ origin: "*" }));
 let con = mysql.createConnection({
@@ -29,31 +31,6 @@ con.connect((err) => {
   if (err) throw err;
   console.log("Connected to DB!");
 });
-
-//mongo
-async function run() {
-  try {
-    const database = client.db("my-db");
-    const movies = database.collection("students");
-    // Query for a movie that has the title 'Back to the Future'
-    const query = { firstName: "Sami" };
-    const movie = await movies.find();
-    const movieArr = await movie.toArray();
-    // movie.map((element) => {
-    //   console.log(element);
-    // });
-    movieArr.forEach(async (el) => {
-      const d = await el;
-      console.log(d);
-    });
-    // console.log(movie);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-run().catch(console.dir);
-//mongo-end
 app.get("/sort", async (req, res) => {
   console.log(req.headers);
   if (req.headers.tablename) {
@@ -68,6 +45,7 @@ app.get("/sort", async (req, res) => {
     // if (req.headers.sorting == "asc")
     con.query(sqlSelectQuery, (err, result) => {
       if (err) throw err;
+      console.log("\nsort : res:\n", result);
       res.send(result);
     });
     // }
@@ -129,31 +107,227 @@ app.get("/import", async (req, response) => {
     } catch (err) {
       console.error(err);
     }
-    // if (fs.existsSync(`./${tableName}_fastcsv.csv`))
-    //   ws = fs.createReadStream(`./${tableName}_fastcsv.csv`);
-    // // } catch (error) {
-    // else response.send(undefined);
-    // console.log(err);
-    // }
-    // fs.writeFileSync("/", jsonData);
-    // let data = [];
-    //asd
+  });
+});
 
-    //asd
-    // if (ws)
-    //   ws.pipe(fastcsv.parse({ headers: true }))
-    //     .on("error", (error) => console.log(error))
-    //     .on("data", (row) => data.push(row))
-    //     .on("end", () => {
-    //       console.log(`Write to ${tableName}_fastcsv.csv successfully!`);
-    //       response.send(data);
-    //     });
-    // else response.send("err");
+app.get("/convert/getDocsByDate", async (req, response) => {
+  const date = req.headers.date;
+  console.log("##HEADERS##:" + JSON.stringify(req.headers));
+  const collectionName = req.headers.collectionname;
+  const dateFirst = req.headers.datefirst;
+  const dateLast = req.headers.datelast;
+  const database = client.db("my-db");
+  const collection = database.collection(collectionName);
+  console.log(collectionName);
+  try {
+    // console.log("\nGET DATA BY DATE\n");
+    // await docsCursor =
+    const dateTemp = dateLast;
+
+    const dt1 = parseInt(dateFirst.substring(6, 8)) + 1;
+    const mon1 = parseInt(dateFirst.substring(4, 6)) - 1;
+    const yr1 = parseInt(dateFirst.substring(0, 4));
+
+    const dt2 = parseInt(dateLast.substring(6, 8)) + 1;
+    const mon2 = parseInt(dateLast.substring(4, 6)) - 1;
+    const yr2 = parseInt(dateLast.substring(0, 4));
+    console.log(dt1, mon1, yr1);
+    const date1 = new Date(yr1, mon1, dt1);
+    const date2 = new Date(yr2, mon2, dt2);
+
+    // dateGT.setUTCDate(dateLast);
+    console.log(date1, date2);
+    const pipeline = [
+      {
+        $match: {
+          created_at: {
+            $gt: date1,
+            $lt: date2,
+            // new Date("2016-12-12")
+          },
+        },
+      },
+    ];
+    console.log("BEFORE LOG:\n");
+    const cursorToArrData = await collection.aggregate(pipeline).toArray();
+    console.log(dateFirst, dateLast, cursorToArrData);
+    response.send(cursorToArrData);
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.get("/convert/check_if_collection_exists", async (req, response) => {
+  // console.log(req.headers);
+  // if (req.headers.tablename) {
+  const collectionName = req.headers.collectionname;
+  const sorting = req.headers.sorting;
+  const orderVal = req.headers.orderval;
+  const firstDate = req.headers.firstdate;
+  const lastDate = req.headers.lastdate;
+  const colFlag = req.headers.colflag === "true";
+  console.log("presenting\n\n\n\n\n");
+  let sqlSelectQuery = "";
+  const database = client.db("my-db");
+  const collection = database.collection(collectionName);
+  //mongo start
+
+  try {
+    let doesExist = false;
+    const checkCollection = async () => {
+      const d = await database
+        .collection(collectionName)
+        .find()
+        .toArray(function (err, res) {
+          console.log("\nss. is exist? " + res);
+          if (res.length > 0) {
+            doesExist = true;
+            console.log("does exist ? ", doesExist);
+          }
+          response.send(doesExist);
+        });
+    };
+    checkCollection();
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/convert/getall", async (req, res) => {
+  // console.log(req.headers);
+  // if (req.headers.tablename) {
+  const collectionName = req.headers.collectionname;
+  const sorting = req.headers.sorting;
+  const orderVal = req.headers.orderval;
+  const firstDate = req.headers.firstdate;
+  const lastDate = req.headers.lastdate;
+  const colFlag = req.headers.colflag === "true";
+  console.log("presenting\n\n\n\n\n");
+  let sqlSelectQuery = "";
+
+  //mongo start
+  const database = client.db("my-db");
+  const collection = database.collection(collectionName);
+  try {
+    const runMongo = async () =>
+      await database.collection(collectionName).find({}).toArray();
+    const data = await runMongo();
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.get("/convert/deleteall", async (req, response) => {
+  console.log(req.headers);
+  const tableName = req.headers.tablename;
+  const sorting = req.headers.sorting;
+  const orderVal = req.headers.orderval;
+  const firstDate = req.headers.firstdate;
+  const lastDate = req.headers.lastdate;
+  const colFlag = req.headers.colflag === "true";
+  console.log(typeof colFlag);
+  let sqlSelectQuery = "";
+
+  // const runMongo = async (result) => {
+  const database = client.db("my-db");
+  const movies = database.collection(tableName);
+  // const query = JSON.stringify(result[0]);
+  // console.log("QUERY: " + query);
+  const movie = await movies.deleteMany({});
+
+  try {
+    let doesExist = false;
+    const checkCollection = async () => {
+      const d = database
+        .collection(tableName)
+        .find({})
+        .toArray(function (err, res) {
+          console.log("RES:", res, "RESLL");
+          if (res.length >= 0) {
+            database.collection(tableName).drop((err, delOK) => {
+              if (err) throw err;
+              if (delOK) console.log("Collection dropped");
+              response.send(true);
+              // database.close();
+            });
+            console.log("does exist ? ", doesExist);
+          } else response.send(false);
+        });
+    };
+    checkCollection();
+  } catch (error) {
+    console.log(error);
+  }
+
+  // const movieDropped = await movie.console.log(movie);
+  // };
+
+  // sqlSelectQuery = `SELECT * FROM ${tableName}`;
+
+  // con.query(sqlSelectQuery, (err, result) => {
+  // if (err) throw err;
+  // runMongo();
+  // response.send(result);
+  // });
+});
+app.get("/convert", async (req, res) => {
+  const tableName = req.headers.tablename;
+  const sorting = req.headers.sorting;
+  const orderVal = req.headers.orderval;
+  const firstDate = req.headers.firstdate;
+  const lastDate = req.headers.lastdate;
+  const colFlag = req.headers.colflag === "true";
+  let sqlSelectQuery = "";
+
+  const runMongo = async (result) => {
+    const database = client.db("my-db");
+    const collection = database.collection(tableName);
+    const query = JSON.stringify(result[0]);
+    console.log("QUERY: " + query);
+    const docs = await collection.find();
+    const movieArr = await docs.toArray();
+    const oneStud = result[0];
+
+    try {
+      const newDocs = [];
+      const ids = [];
+      const cursors = [];
+      // if (tableName == "users") {
+      for (let i = 0; i < result.length; i++) {
+        result[i]["_id"] = result[i].id;
+        delete result[i].id;
+        const doc = result[i];
+        const query = { _id: doc._id };
+      }
+      await database.collection(tableName).insertMany(result);
+      for (let i = 0; i < result.length; i++) {
+        const doc = result[i];
+        const query = { _id: doc._id };
+        ids.push(query);
+        cursors.push(database.collection(tableName).find(ids[i]));
+      }
+      cursors.forEach(async (cursor) => {
+        await cursor.forEach((s) => console.log(s._id));
+      });
+
+      console.log(newDocs);
+      // }
+    } catch (error) {
+      console.log(error);
+    }
+
+    movieArr.forEach(async (el) => {
+      const d = await el;
+    });
+  };
+  sqlSelectQuery = `SELECT * FROM ${tableName}`;
+  con.query(sqlSelectQuery, (err, result) => {
+    if (err) throw err;
+    runMongo(result);
+    res.send(result);
   });
 });
 app.get("/filter", async (req, res) => {
   console.log(req.headers);
-  // if (req.headers.tablename) {
   const tableName = req.headers.tablename;
   const sorting = req.headers.sorting;
   const orderVal = req.headers.orderval;
@@ -168,19 +342,13 @@ app.get("/filter", async (req, res) => {
       WHERE TABLE_NAME = N'${tableName}' AND TABLE_SCHEMA = "ig_clone";`;
   } else {
     console.log(firstDate, lastDate);
-    // let sqlSelectQuery = "";
-    // if (tableName && sorting && orderVal) {
     console.log("hello");
     sqlSelectQuery = `SELECT * FROM ${tableName} WHERE created_at BETWEEN ${firstDate.toString()} AND ${lastDate.toString()}`;
-
-    // if (req.headers.sorting == "asc")
   }
   con.query(sqlSelectQuery, (err, result) => {
     if (err) throw err;
     res.send(result);
   });
-  // }
-  // }
 });
 
 app.get("/join", async (req, res) => {
